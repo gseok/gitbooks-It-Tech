@@ -24,7 +24,7 @@ node.js 에서는 node.js의 모든 버전별 package을 아래 주소에서 관
 $ wget http://nodejs.org/dist/v7.9.0/node-v7.9.0-linux-x64.tar.gz
 ```
 
-**2. 압축풀고 설치하기**
+##### **2. 압축풀고 설치하기**
 
 > 압축 풀기
 
