@@ -8,8 +8,6 @@
 
 수동으로 설치하는 방법 역시 어렵지 않기 때문에 간단히 설명한다.
 
-
-
 #### ubuntu에서 node.js 수동 설치 방법
 
 ##### 1. 원하는 버전 다운로드 받기
@@ -26,8 +24,6 @@ node.js 에서는 node.js의 모든 버전별 package을 아래 주소에서 관
 $ wget http://nodejs.org/dist/v7.9.0/node-v7.9.0-linux-x64.tar.gz
 ```
 
-
-
 **2. 압축풀고 설치하기**
 
 > 압축 풀기
@@ -35,8 +31,6 @@ $ wget http://nodejs.org/dist/v7.9.0/node-v7.9.0-linux-x64.tar.gz
 ```
 $ tar -xvf node-v7.9.0-linux-x64.tar.gz
 ```
-
-
 
 > 사용하기
 
@@ -48,13 +42,11 @@ $ tar -xvf node-v7.9.0-linux-x64.tar.gz
 $ /home/gseok/node-v7.9.0-linux-x64/bin/node --version
 ```
 
-하지만, 보통 ubuntu에서 어느 위치에서나 사용가능하게 만들어 두고 쓰는게 일반적이다. 
+하지만, 보통 ubuntu에서 어느 위치에서나 사용가능하게 만들어 두고 쓰는게 일반적이다.
 
 따라서, 압축해제한 node폴더를 `/usr/local/` 로 복사해서 사용한다.
 
 \(또는 ln 명령어로 link을 걸어서 사용해도 된다.\)
-
-
 
 > /usr/local/ 에 복사해서 사용하기
 
@@ -64,10 +56,7 @@ $ cd node-v7.9.0-linux-x64
 
 # 복사 명령 수행 (sudo)
 $ sudo cp -r * /usr/local
-
 ```
-
-
 
 > 확인 및 사용
 
@@ -78,10 +67,6 @@ $ node --version
 정상적으로 설치되었다면, 아무 위치에서나, node --version 명령 수행이 잘 동작할 것이다.
 
 위 방법으로 설치하면 npm도 같이 잘 설치된다.
-
-
-
-
 
 #### 참고
 
@@ -94,6 +79,19 @@ $ node --version
 
 $ curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
+```
+
+
+
+* 수동 설치를 한번에 처리하는 명령어 \(node-v7.9.0에 64bit를 예로 들었음\)
+
+```
+$ wget http://nodejs.org/dist/v7.9.0/node-v7.9.0-linux-x64.tar.gz && \
+    tar zxvf node-v7.9.0-linux-x64.tar.gz && \
+    cd node-v7.9.0-linux-x64 && \
+    cp -r * /usr/local/ && \
+    cd .. && \
+    rm -rf node*
 ```
 
 
