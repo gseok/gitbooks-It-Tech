@@ -81,11 +81,9 @@ $ curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
 $ sudo apt-get install -y nodejs
 ```
 
-
-
 * 수동 설치를 한번에 처리하는 명령어 \(node-v7.9.0에 64bit를 예로 들었음\)
 
-```
+```bash
 $ wget http://nodejs.org/dist/v7.9.0/node-v7.9.0-linux-x64.tar.gz && \
     tar zxvf node-v7.9.0-linux-x64.tar.gz && \
     cd node-v7.9.0-linux-x64 && \
