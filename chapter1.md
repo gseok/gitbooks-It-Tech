@@ -1,3 +1,6 @@
-# First Chapter
+# Ubuntu
 
-GitBook allows you to organize your book into chapters, each chapter is stored in a separate file like this one.
+ubuntu 관련 팁 모음
+
+
+
