@@ -2,8 +2,6 @@
 
 atom의 package\(plugin\)프로젝트는 반드시 `package.json`이 필요하다. 해당 파일은 package\(plugin\)의 metadata\(manifest\)을 기술하도록 되어 있다. 기본적으로 Node 의 npm 에서 사용하는 `package.json`의 구조를 그대로 사용하고 있다. 거기에 더하여 atom에서 사용하는 `keys`가 추가되어 있다. 하나씩 살펴보도록 한다.
 
-
-
 > package.json 살펴보기
 
 ```
@@ -36,7 +34,6 @@ atom의 package\(plugin\)프로젝트는 반드시 `package.json`이 필요하�
   "dependencies": {
   }
 }
-
 ```
 
 * name
@@ -51,13 +48,20 @@ atom의 package\(plugin\)프로젝트는 반드시 `package.json`이 필요하�
   * package에서 필요로 하는 스타일 정의.
   * 배열안의 요소는 string으로 정의한다.
   * 만약 정의하지 않으면, `styles` 디렉토리에 정의한 cson파일이 알파벳 순서로 등록된다.
-* menus
-  * package에서 기여하는 메뉴를 정의한다.
-  * 배열안에 요소는 string으로 정의한다.
+
 * keymaps
   * package에서 필요로 하는 key정의.
   * 배열안의 요소는 string으로 정의한다.
   * 만약 정의하지 않으면, `keymaps` 디렉토리에 정의한 cson파일이 알파벳 순서로 등록된다.
+* menus
+  * package에서 기여하는 메뉴를 정의한다.
+  * 배열안에 요소는 string으로 정의한다.
+  * 만약 정의하지 않으면, `menus` 디렉토리에 정의한 cson파일이 알파벳 순서로 등록된다.
+* snippets
+  * package에서 기여하는 snippets을 정의한다.
+  * 배열안의 요소는 string으로 정의한다.
+  * 만약 정의하지 않으면, `snippets` 디렉토리에 정의한 cson파일이 알파벳 순서로 등록된다.
+
 * activationCommands
   * package가 action되는 trigger인 commands을 정의한다.
   * 배열안의 요소는 string으로 정의한다.
