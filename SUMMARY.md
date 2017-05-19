@@ -6,5 +6,5 @@
   * [ubuntu에서 node.js 수동으로 버전 골라서 설치 하기](chapter1/ubuntuc5d0-c11c-node-c218-b3d9-c73c-b85c-bc84-c804-ace8-b77c-c11c-c124-ce58-d558-ae30.md)
 * [Atom](atom.md)
   * [atom에 custom 메뉴 추가하기](atom/atomc5d0-custom-ba54-b274-cd94-ac00-d558-ae30.md)
-  * atom에서 플러그인 프로젝트 생성하기
+  * [atom에서 플러그인 프로젝트 생성하기](atom/atomc5d0-c11c-d50c-b7ec-adf8-c778-d504-b85c-c81d-d2b8-c0dd-c131-d558-ae30.md)
 
