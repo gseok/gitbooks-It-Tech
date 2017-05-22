@@ -4,7 +4,7 @@ atom package\(plugin\)의 구동 flow에 대하여 간략하게 정리한다.
 
 ---
 
-`package loading`
+> `package loading`
 
 1\) Atom을 실행한다.
 
@@ -30,7 +30,7 @@ atom package\(plugin\)의 구동 flow에 대하여 간략하게 정리한다.
 
 ---
 
-`package activate`
+> `package activate`
 
 1\) package\(package.json\)에서 정의한 `activationCommands`가 호출되면 activate을 진행한다.
 
@@ -69,11 +69,17 @@ atom package\(plugin\)의 구동 flow에 대하여 간략하게 정리한다.
 
 ---
 
-`package deactivate`
+> `package deactivate`
 
 1\) main \(entry-point\) 에 정의한 deactivate 함수를, atom이 종료될때 호출 한다.
 
 * 해당 함수에서 dispose, destroy 함수를 호출하여, resource을 release 해주어야 한다.
+
+
+
+---
+
+> `package editor 기여 flow`
 
 
 
