@@ -46,6 +46,7 @@ atom package\(plugin\)의 구동 flow에 대하여 간략하게 정리한다.
   * command\(atom.commands.add\)등록
 
   * editor operner\(atom.workspace.addOpener\)등록
+
   * 등록된 리소스 핸들러를 해지하기위한, disposable 사용 \(CompositeDisposable\)
 
 * activate함수에서 실제 해당 package\(plugin\)에서 해야하는 동작을 구현하고, atom의 command, editor등의 연결을 설정한다.
@@ -56,6 +57,25 @@ atom package\(plugin\)의 구동 flow에 대하여 간략하게 정리한다.
 * 따라서 package가 아직 activation되지 않은 상태에서도, 해당 command 호출까지는 가능
 * 해당 command가 호출되었을때, 아직 해당 command을 기여한 package가 activation상태가 아니면, 해당 command을 기여한 package의 `activate`을 먼저 호출 한다.
 * 이미 `activate`가 호출되어서, atom이 해당 command에 대한 handler\(function\)을 알고 있는 경우, 해당 함수를 바로 호출한다.
+
+4\) view에 대한 serialize가 필요한 경우 main\(entry point\)에서 구현\(activate구현 위치와 동일위치\)한 serialize를 atom이 호출한다.
+
+* serialize 함수는 object를 리턴해야 한다.
+  * 즉 { myStateKey: this.view.reialize\(\) } 형태
+* object의 key는 atom이 activate함수를 호출할때 전달하는 state object param에 적용된다.
+  * 즉 state.myStateKey 접근 가능
+
+5\) Atom은 `package activate` 과정을 완료한다.
+
+---
+
+`package deactivate`
+
+1\) main \(entry-point\) 에 정의한 deactivate 함수를, atom이 종료될때 호출 한다.
+
+* 해당 함수에서 dispose, destroy 함수를 호출하여, resource을 release 해주어야 한다.
+
+
 
 
 
