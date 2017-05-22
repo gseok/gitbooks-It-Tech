@@ -75,13 +75,154 @@ atom package\(plugin\)의 구동 flow에 대하여 간략하게 정리한다.
 
 * 해당 함수에서 dispose, destroy 함수를 호출하여, resource을 release 해주어야 한다.
 
-
-
 ---
 
 > `package editor 기여 flow`
 
+atom의 editor기여는, editor에 적용되어야 하는 view을 구현하여 리턴하는 형태로 되어 있다. 해당 view가 이미 editor에 붙어 있는 경우 view의 state을 변경하는 형태를 제공한다. 따라서, editor에 view을 제공하는 구현을 할때, serialize, deserializer 함수를 구현해 주어야 한다.
 
+**activate 에서 atom의 addOpener 함수 등록**
+
+* atom은 addOpener에 등록된 **모든 fucntion을 순차적으로 call** 한다.
+  * 모든 function이 call되기 때문에 반드시 URI을 비교해서, 자신\(자기 package\(plugin\)\)에서 처리해야하는 부분을 if문으로 만들어 주어야 한다.
+
+```js
+    this.subscriptions.add(
+        atom.workspace.addOpener(uri => {
+            // 아래와 같이 if문에서 uri 비교를 반드시 해 주어야 한다.
+            // 만약 그냥 view을 만들어서 return 하면, 다른 package나 default package에서 컨트롤해야 하는 요청에 대하여
+            // 내가 만드는 package가 처리해 버리는 경우가 발생 할 수 있다.
+            if (uri === 'atom://active-editor-info') {
+                return new ActiveEditorInfoView();
+            }
+        })
+    );
+```
+
+**atom에서 editor 열기**
+
+* atom에서 editor을 열기
+  * unique한 URI을 명시적으로 주어서 editor을 열어야 한다.
+  * atom은 내부적으로 addOpener을 호출한다.
+    * addOpener에 등록된 함수중 null이 아닌 view을 리턴하면 해당 view을 editor로 보여주는 형태를 가진다.
+
+```js
+
+// editor을 open하는 함수
+atom.workspace.open('atom://active-editor-info');
+
+// editor을 toggle하는 함수
+atom.workspace.toggle('atom://active-editor-info');
+```
+
+**view 구현**
+
+* deserializer에 package.json에서 표현되는, deserializer함수 key을 정의하고, package.json에서는 해당 key와 mapping된 main\(entry point\)에 정의하는 함수를 정의하여야 함.
+
+```js
+// package.json에 deserializers가 명시되어야 함.
+"deserializers": {
+    "active-editor-info/ActiveEditorInfoView": "deserializeActiveEditorInfoView"
+}
+
+// main entry 파일에 deserializers에 대한 구현이 있어야 함.
+deserializeActiveEditorInfoView(serialized) {
+    return new ActiveEditorInfoView();
+}
+
+// main entry 파일의 activate에 아래와 같이 addOpner가 있어야 함.
+    // Add an opener for our view.
+    this.subscriptions.add(
+        atom.workspace.addOpener(uri => {
+            if (uri === 'atom://active-editor-info') {
+                return new ActiveEditorInfoView();
+            }
+        })
+    );
+    
+// view 구현체의 serialize에 deseializer을 명시 해야 함.
+  serialize() {
+    return {
+      deserializer: 'active-editor-info/ActiveEditorInfoView'
+    };
+  }
+```
+
+아래 코드는 view 구현 예제 코드이다.
+
+```js
+'use babel';
+
+export default class ActiveEditorInfoView {
+
+  constructor(serializedState) {
+    // Create root element
+    this.element = document.createElement('div');
+    this.element.classList.add('active-editor-info');
+
+    // Create message element
+    const message = document.createElement('div');
+    message.textContent = 'The ActiveEditorInfo package is Alive! It\'s ALIVE!';
+    message.classList.add('message');
+    this.element.appendChild(message);
+
+    this.subscriptions = atom.workspace.getCenter().observeActivePaneItem(item => {
+      if (!atom.workspace.isTextEditor(item)) return;
+      message.innerHTML = `
+        <h2>${item.getFileName() || 'untitled'}</h2>
+        <ul>
+          <li><b>Soft Wrap:</b> ${item.softWrapped}</li>
+          <li><b>Tab Length:</b> ${item.getTabLength()}</li>
+          <li><b>Encoding:</b> ${item.getEncoding()}</li>
+          <li><b>Line Count:</b> ${item.getLineCount()}</li>
+        </ul>
+      `;
+    });
+  }
+
+  getTitle() {
+    // Used by Atom for tab text
+    return 'Active Editor Info';
+  }
+
+  getDefaultLocation() {
+    // This location will be used if the user hasn't overridden it by dragging the item elsewhere.
+    // Valid values are "left", "right", "bottom", and "center" (the default).
+    return 'right';
+  }
+
+  getAllowedLocations() {
+    // The locations into which the item can be moved.
+    return ['left', 'right', 'bottom'];
+  }
+
+  getURI() {
+    // Used by Atom to identify the view when toggling.
+    return 'atom://active-editor-info'
+  }
+
+  // Returns an object that can be retrieved when package is activated
+  serialize() {
+    return {
+      deserializer: 'active-editor-info/ActiveEditorInfoView'
+    };
+  }
+
+  // Tear down any state and detach
+  destroy() {
+    this.element.remove();
+    this.subscriptions.dispose();
+  }
+
+  getElement() {
+    return this.element;
+  }
+
+}
+
+```
+
+* about이나 welcome이 editor에 표시되는 것 역시 atom의 core code에서 about와 welcome에 대한 addOpener가 등록되어 있고, unique한 URI로 이 값이 정의되어 있다.
 
 
 
