@@ -233,6 +233,7 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 * 코드
   * `script/lib/transpile-peg-js-paths.js`
 * 하는일
+
   * 동일패턴 \(Transpiling PEG.js paths in `~\atom\out\app`\)
   * 여기서는 CompileCache.addPathToCache 가 없음
 
@@ -263,8 +264,6 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
   * 만들어진 새로운 `package.json`을 build과정에서 사용중인 `CONFIG` 객체에 설정하고, 이를 다시 `package.json`으로 write
     * `~\atom\out\app` 위치
 
-
-
 ##### ModuleCache.create\(\) call
 
 * 코드
@@ -293,7 +292,7 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 * 코드
   * `script/lib/generate-metadata.js`
 * 하는일
-  * `~\atom\out\app\package.json` 파일 생성 \(**`기존에 있는거 덮어 쓰고 재생성`**\)
+  * `~\atom\out\app\package.json` 파일 생성 \(`기존에 있는거 덮어 쓰고 재생성`\)
   * `package. menu, keymaps, deprecatedpackage`을 추가해서 재생성하고, file write
 
 ---
@@ -305,7 +304,7 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 * 하는일
   * Generating API docs at `~\atom\docs\output\atom-api.json` 으로 `api doc` 생성
   * `~/atom/.` 위치의 모든 coffee script와 `~/atom/src/**/*.js`위치의 모든 js파일을 이용해서 `api doc`을 생성한다.
-  * **`require('donna'), require('tello'), require('joanna')`** 3개의 lib을 사용해서 api doc 생성
+  * `require('donna'), require('tello'), require('joanna')` 3개의 lib을 사용해서 api doc 생성
     * 참고: [https://www.npmjs.com/package/tello](https://www.npmjs.com/package/tello)
     * atom doc을 만드는 lib
 
@@ -317,7 +316,7 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
   * `script/lib/dump-symbols.js`
 * 하는일
   * `minidump`라는 lib을 이용해서 `dump`작업을 한다.
-  *  Skipping symbol dumping because minidump is not supported on Windows \(윈도우의 경우 skip\)
+  * Skipping symbol dumping because minidump is not supported on Windows \(윈도우의 경우 skip\)
   * `~/atom/out/app/node_modules/**/*.node`, 즉 `*.node`파일을 Listup 하고 해당 list파일을 하나씩 dump
 
 ##### minidump
@@ -333,46 +332,43 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 * 하는일
   * `electron package` 작업을 하는 부분
   * Running electron-packager on `~\atom\out\app`with app name `atom`
-  * 내부적으로 `runPackage(option)`을 호출
+  * 1\) 내부적으로 `runPackager(option)`을 호출
     * option에는, `version, arch, name, outputdir, copyright`등을 설정하게 되어 있음
+    * runPackager\(option\)은 electornPackager\(\)을 호출한다.
+  * 2\) `copyNonASARResources()` 을 호출
 
+##### electronPackager\(\) call
 
+* 코드
+  * node module이다.
+  * [https://www.npmjs.com/package/electron-packager](https://www.npmjs.com/package/electron-packager)
+* 하는일
+  * `electronPackager`는 `electron` 기반 app을 package해서, `(.app, .exe)`와 같은 **실행파일로 만들어 주는 유틸**이다.
+  * 즉 여기서는 electron기반 app을 package해서, 시작점인 `atom.exe` \(window의 경우\)을 만드는 작업
+  * 해당 함수가 정상 동작하고 나면, `~/atom/out/Atom x64` 디렉토리가 생성되고, 해당 디렉토리 아래 `atom.exe`파일이 생성된다.
 
-##### runPackage\(option\) call
+##### copyNonASARResources\(\) call
 
-\* electronPackager\(\) 함수 호출
+* 코드
+  * `script/lib/package-application.js`
+    * 이 함수는 packageApplication에 구현되어 있다.
+* 하는일
+  * 이 함수는 runPackage\(option\) 함수 호출 성공시 다음 step에서 바로 호출된다.
+  * `~\atom\out\Atom x64\resources` 위치에 `non-ASAR resource`을 `copy`함.
+  * 일단 APM을 copy
+    * `~\atom\apm\node_modules\atom-package-manager` 을 copy해서 `~\atom\out\Atom x64\resources\app\apm`에 넣음
+    * 따라서 atom이 build된 결과물에는 apm이 잘 존재하게 됨
+  * \[ 'atom.cmd', 'atom.sh', 'atom.js', 'apm.cmd', 'apm.sh', 'file.ico', 'folder.ico' \] 파일도 copy함
+  * LICENSE.md 파일도 만들어서 copy
+    * script/lib/get-license-text.js을 이용해서 생성
 
-\* electronPackager는 electron 기반 app을 package해서, \(.app, .exe\)와 같은 실행파일로 만들어 주는 유틸임
+`electorn`에서 `electorn-package`을 하면, `resource`가 복사됨 이때 빠진 부분을 수동으로 copy하는 역할
 
-\* 즉 여기서는 electron기반 app을 package해서, 시작점인 atom.exe \(window의 경우\)을 만드는 작업
+###### ASAR 설명
 
-\* 참고: [https://www.npmjs.com/package/electron-packager](https://www.npmjs.com/package/electron-packager)
-
-\* 해당 함수가 정상 동작하고 나면, "~/atom/out/Atom x64" 디렉토리가 생성되고, 해당 디렉토리 아래 atom.exe파일이 생성되어 있음.
-
-&gt;&gt;&gt;&gt; 함수 copyNonASARResources\(\)는 runPackage\(option\) 함수 호출 성공시 다음 step에서 바로 호출됨
-
-\* "~\atom\out\Atom x64\resources" 위치에 non-ASAR resource을 copy함.
-
-\* ASAR??
-
-\*\* electron에서 만든 tar 비슷한 archive format인듯함 - 참고: [https://github.com/electron/asar](https://github.com/electron/asar)
-
-\*\* 참고: [https://github.com/electron/electron/blob/master/docs/tutorial/application-packaging.md](https://github.com/electron/electron/blob/master/docs/tutorial/application-packaging.md)
-
-\* electorn에서 electorn-package을 하면, resource가 복사되는데\(ASAR??되는데?\) 빠진 부분을 수동으로 copy하는 역할로 보임
-
-\* 일단 APM을 copy함
-
-\*\* "~\atom\apm\node\_modules\atom-package-manager" 을 copy해서 --&gt; "~\atom\out\Atom x64\resources\app\apm"에 넣음
-
-\*\* 따라서 atom이 build된 결과물에는 apm이 잘 존재하게 됨
-
-\* \[ 'atom.cmd', 'atom.sh', 'atom.js', 'apm.cmd', 'apm.sh', 'file.ico', 'folder.ico' \] 파일도 copy함
-
-\* LICENSE.md 파일도 만들어서 copy
-
-\*\* script/lib/get-license-text.js을 이용해서 생성
+*  `electron`에서 만든 `tar` 비슷한 `archive format`
+  * 참고: [https://github.com/electron/asar](https://github.com/electron/asar)
+  * 참고: [https://github.com/electron/electron/blob/master/docs/tutorial/application-packaging.md](https://github.com/electron/electron/blob/master/docs/tutorial/application-packaging.md)
 
 ---
 
