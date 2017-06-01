@@ -22,90 +22,101 @@ build 코드에서 가장 먼저 호출하는 함수이다.
 
   * 5\) runApmInstall\(\) call
 
-
-
 ##### 1\) verifyMachineRequirements\(\) call
 
 * 코드
+
   * `script/lib/verify-machine-requirements.js`
 
 * 하는일
+
   * node, npm, python 버전을 check 한다.
-
-
 
 ##### 2\) cleanDependencies\(\) call
 
 * 코드
+
   * `script/lib/clean-dependencies.js`
 
 * 하는일
+
   * 이전에 build한 파일을 remove한다.
   * fs.removeSync 함수를 사용해서 remove하고 있다.
-
-
+  * _~/atom/node\_modules, ~/atom/apm/node\_modules, ~/atom/script/node\_modules 을 제거한다._
 
 ##### 3\) installScriptDependencies\(\) call
 
 * 코드
+
   * `script/lib/install-script-dependencies.js`
 
 * 하는일
+
   * npm install 을 `~/atom/script/` 위치에서 수행한다.
   * `~/atom/script` 폴더에 정의된 `package.json`을 이용해서 node\_module을 설치 한다.
     * build script용 node\_module설치로 보면 된다.
 
-
-
 ##### 4\) installApm\(\) call
 
 * 코드
+
   * `script/lib/install-apm.js`
 
 * 하는일
+
   * npm install 을 `~/atom/apm/` 위치에서 수행한다.
   * apm 모듈을 설치하는 것으로 보면 된다.
     * 설치 이후 `apm` 명령 수행이 가능해 진다.
     * `~/atom/apm/node_modules/atom-package-manager/bin/apm` 이 사용가능하다.
-
-
 
 ##### 5\) runApmInstall\(\) call
 
 * 코드
   * `script/lib/run-apm-install.js`
 
-\*\* apm install 명령어를 "~/atom" 위치에서 수행한다.
+* 하는일
+  * `apm install` 명령어를 `~/atom` 위치에서 수행한다.
+  * `atom` 폴더에 정의된 `package.json`을 이용해서 `node_module`을 설치한다.
+    * 실제 atom package들과 atom에서 필요로 하는 package가 설치된다.
+    * `package.json`에 dependencies로 정의된 부분은 npm install과 동일하게 설치한다
+    * `package.json`에 packageDependencies로 정의된 부분은\(apm 모듈의 src/install.js 참고\) apm이 npm처럼 설치한다.
+  * `~/atom/apm/node_modules/atom-package-manager` 의 `install` 동작
+  * ```
+    1) https://atom.io/api/packages/<<package_name>> 으로 package info(JSON)을 가져옴
 
-\*\* atom 폴더에 정의된 packagd.json을 이용해서 node\_moudle을 설치한다. ==&gt; 실체 atom package들과 atom에서 필요로 하는 package가 설치된다.
+    2) 가져온 정보에 있는 download URL & version 정보를 사용
 
-\*\* package.json에 dependencies로 정의된 부분은 npm install과 동일하게 설치한다.
+    3) requesetPackage, downloadPackage 함수를 이용해서 git or web에서 실제 package을 가져옴
 
-\*\* package.json에 packageDependencies로 정의된 부분은\(apm 모듈의 src/install.js 참고\) apm이 npm처럼 설치한다.
+           위 함수들은 apm의 소스 코드중 install.js을 참고
 
-```
-\*\*\* 1\) https://atom.io/api/packages/&lt;&lt;package\_name&gt;&gt; 으로 package info\(JSON\)을 가져옴
+           실제 node의 request을 이용해서 파일을 가져오고 있음을 볼 수 있다.
+    ```
 
-\*\*\* 2\) 가져온 정보에 있는 download URL & version 정보를 사용
-
-\*\*\* 3\) requesetPackage, downloadPackage 함수를 이용해서 git or web에서 실제 package을 가져옴
-
-       위 함수들은 apm의 소스 코드중 install.js을 참고
-
-       실제 node의 request을 이용해서 파일을 가져오고 있음을 볼 수 있다.
-```
-
-\*\* 결론적으로, \(apm install\) 이 수행되고 나면 atom에서 필요로하는 모듈을 build전에 다 local로 가져오게 된다.
+*  결론적으로, `apm install` 이 수행되고 나면 **atom에서 필요로하는 모듈을 build전에 다 local로 가져오게 된다**.
 
 여기까지 진행하면 build을 위한 사전작업\(bootstrap\)이 완료
 
 ---
 
-&gt; checkChromedriverVersion\(\)
+#### checkChromedriverVersion\(\)
+
+atom은 electron기반으로 동작하는데,  electron의 major, minor 버전과, chrom driver 버전과 잘 매칭되는지 확인하는 과정
+
+* 코드
+  * `script/lib/check-chromedriver-version.js`
+* 하는일
+  * `semver` 모듈을 사용해서, version을 체크한다.
+  * `semver`: [http://semver.org/](http://semver.org/)
+  * `~/atom/package.json` 에 정의되어 있는 `electorn-chromedriver` 와 `electron-mksnapshot` 의 버전 정보를 가지고,  동일한파일의 \(`~/atom/script/config.js` 에서 `appMetaData.electornVersion`을 가져오는데, `appMetaData`는 `~/atom/package.json`임\), 동일 파일의 `electron version`과 비교해서, 사용가능한지 체크한다.
 
 ---
 
-&gt; cleanOutputDirectory\(\)
+#### cleanOutputDirectory\(\)
+
+빌드 과정이기 때문에 본격적인 build가 되기전에 이전 build 결과를 제거하는 동작을 한다.
+
+
 
 ---
 
@@ -113,7 +124,7 @@ build 코드에서 가장 먼저 호출하는 함수이다.
 
 ---
 
-&gt; transpilePackagesWithCustomTranspilerPaths\(\)
+#### transpilePackagesWithCustomTranspilerPaths\(\)
 
 \* script/lib/transpile-packages-with-custom-transpiler-paths.js
 
