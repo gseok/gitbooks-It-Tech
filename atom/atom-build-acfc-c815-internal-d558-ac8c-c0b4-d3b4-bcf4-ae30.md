@@ -366,83 +366,100 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 
 ###### ASAR 설명
 
-*  `electron`에서 만든 `tar` 비슷한 `archive format`
+* `electron`에서 만든 `tar` 비슷한 `archive format`
   * 참고: [https://github.com/electron/asar](https://github.com/electron/asar)
   * 참고: [https://github.com/electron/electron/blob/master/docs/tutorial/application-packaging.md](https://github.com/electron/electron/blob/master/docs/tutorial/application-packaging.md)
 
 ---
 
-&gt; generateStartupSnapshot\(\)
+#### generateStartupSnapshot\(\)
 
-\* script/lib/generate-startup-snapshot.js
+* 코드
+  * `script/lib/generate-startup-snapshot.js`
+* 하는일
+  * `~\atom\out\startup.js` 을 만듬.
+    * coreModules: new Set\(\['electron', 'atom', 'shell', 'WNdb', 'lapack', 'remote'\]\)
+  * **`electron-link`** 모듈 사용해서 함수 콜
+    * 참고: [https://github.com/atom/electron-link](https://github.com/atom/electron-link)
+  * 생성한 snapshot 파일 move
+    * `~\atom\out\snapshot_blob.bin 파일을`  `~\atom\out\Atom x64\snapshot_blob.bin` 이동
 
-\* "~\atom\out\startup.js" 을 만듬.
 
-\* coreModules: new Set\(\['electron', 'atom', 'shell', 'WNdb', 'lapack', 'remote'\]\)
 
-\* electron-link 모듈 사용해서 함수 콜
+##### electron-link\(\) call
 
-\* 참고: [https://github.com/atom/electron-link](https://github.com/atom/electron-link)
+* 코드
+  * [https://github.com/atom/electron-link](https://github.com/atom/electron-link)
+  * [https://www.npmjs.com/package/electron-link](https://www.npmjs.com/package/electron-link)
+* 하는일
+  * _시작점부터 필요한 모든 `module`\(require한거\)을 모아서 취합_하는 것으로 보임
+  * `snapshot_blob.bin` 파일을 생성하고, mksnapshot을 이용해서 검증\(verifying\)\(childProcess.execFileSync이용해서\)까지 함
 
-\*\* 시작점부터 필요한 모든 module\(require한거\)을 모아서 취합하는 것으로 보임
 
-\*\* snapshot\_blob.bin 파일을 생성하고, mksnapshot을 이용해서 검증\(verifying\)\(childProcess.execFileSync이용해서\)까지 함
-
-\* 생성한 snapshot 파일 이동
-
-\*\*"~\atom\out\snapshot\_blob.bin 파일을" ===&gt;  "~\atom\out\Atom x64\snapshot\_blob.bin" 이동
-
----
-
-&gt; build내 promise chain에서 generateStartupSnapshot 이후 첫번째 then
-
-\* build 옵션에서, installer생성하는 옵션을 준 경우 이 코드에서 installer을 생성한다.
-
-\* 인스톨러 생성 옵션이 있으면, createWindowsInstaller\(윈도우의 경우\)함수를 호출해서 installer을 생성함.
-
-\*\* linux: createDebianPackage
-
-\*\* max: code sign on mac만 호출하고 별도로 묶는 코드 없음...
-
-\* 인스톨러 생성시 패키징 되어야 하는 atom은 &gt;&gt; "~/atom/out/Atom x64" 이 됨
-
-\* 인스톨러 생성 옵션이 없는 경우, 인스톨러 생성안함
-
-\* codeSign옵션에 따라 codeSign과정 수행
-
-\*\* codeSign은 p12파일로 code를 signing하는 과정임
-
-\*\* build결과물 코드를 signing할 필요가 있는 경우 사용
-
-&gt;&gt;&gt;&gt; 함수 createWindowsInstaller \(윈도우의 경우\) call시 step
-
-\* script/lib/create-windows-installer
-
-\* electorn window installer 모듈을 사용해서 window installer을 생성함.
-
-\* 참고: [https://github.com/electron/windows-installer](https://github.com/electron/windows-installer)
-
-\*
-
-\* 커스텀 인스톨러를 생성하려면, 위 "script/lib/create-windows-installer" 코드를 수정해야 함
-
-\*\* setup.exe파일을 만들었다고 가정하면, 해당 파일의 아이콘, 해당파을 실행햇을때 progress시 화면 등을 여기서 다 설정 가능
-
-\* 참고: [https://github.com/electron/windows-installer](https://github.com/electron/windows-installer) 를 살펴보면, 인스톨러 생성용 옵션들이 존재함.
 
 ---
 
-&gt; build내 promise chain에서 generateStartupSnapshot 이후 두번째 then \(마지막 then\)임
+#### build내 promise chain에서 generateStartupSnapshot\(\) 이후 첫번째 then
 
-\* 1\) build명령어에 compressArtifacts 옵션에 따른 동작
+* 코드
+  * `~/atom/script/build`
+* 하는일
+  * 1\) 인스톨러 생성
+    * 인스톨러 생성 옵션이 없는 경우, 인스톨러 생성안함
+  * 2\) codeSign 과정
+    * codeSign 옵션에 따라 동작 or 미동작
 
-\*\* 옵션이 true면 compress 과정
+##### 1\) 인스톨러 생성
 
-\* 2\) build명령어에 install 옵션에 따른 동작
+build 옵션에서, installer생성하는 옵션을 준 경우 이 코드에서 installer을 생성한다.
 
-\*\* 옵션이 true면 install 과정
+* 인스톨러 생성 옵션이 있으면, `createWindowsInstaller`\(윈도우의 경우\)함수를 호출해서 installer을 생성함.
+  * linux: createDebianPackage
+  * max: code sign on mac만 호출하고 별도로 묶는 코드 없음...
+* 인스톨러 생성시 패키징 되어야 하는 `atom`\(소스\) 위치
+  * `~/atom/out/Atom x64` 이 됨
 
-&gt;&gt;&gt;&gt; 함수 compressArtifacts\(\) call시 step
+
+
+###### createWindowsInstaller \(윈도우의 경우\) call
+
+* 코드
+  * `script/lib/create-windows-installer.js`
+* 하는일
+  * `electorn window installer` 모듈을 사용해서 `window installer`을 생성함.
+  * 참고: [https://github.com/electron/windows-installer](https://github.com/electron/windows-installer)
+
+**커스텀 인스톨러**
+
+```
+커스텀 인스톨러를 생성하려면, 위 "script/lib/create-windows-installer.js" 코드를 수정해야 한다.
+
+* setup.exe파일을 만들었다고 가정하면, 해당 파일의 아이콘, 해당파을 실행햇을때 progress시 화면 등을 여기서 다 설정 가능
+* 참고: https://github.com/electron/windows-installer 를 살펴보면, 인스톨러 생성용 옵션들이 존재함.
+```
+
+
+
+##### 2\) codeSign옵션에 따라 codeSign과정 수행
+
+* codeSign은 p12파일로 code를 signing하는 과정임
+* build결과물 코드를 signing할 필요가 있는 경우 사용
+
+---
+
+#### build내 promise chain에서 generateStartupSnapshot 이후 두번째 then \(마지막 then\)임
+
+* 코드
+  * `~/atom/script/build`
+* 하는일
+  * 1\) build명령어에 compressArtifacts 옵션에 따른 동작
+    * 옵션이 true면 compress 과정 `compressArtifacts()` 호출
+  * 2\) build명령어에 install 옵션에 따른 동작
+    * 옵션이 true면 install 과정 `installApplication()` 호출
+
+
+
+compressArtifacts\(\) call
 
 \* script/lib/compress-artifacts.js
 
@@ -455,6 +472,8 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 \*\* zip, 7z.exe, tar
 
 \*\* 따라서 window의 경우 7z.exe가 환경변수 설정되어 있어서 바로 실행 가능해야함.
+
+
 
 &gt;&gt;&gt;&gt; 함수 installApplication\(\) call시 step
 
