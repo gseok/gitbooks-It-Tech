@@ -11,44 +11,69 @@ build 코드에서 가장 먼저 호출하는 함수이다.
 * 코드
   * `script/bootstrap.js`
 * 하는일
+
   * 1\) verifyMachineRequirements\(\) call
+
   * 2\) cleanDependencies\(\) call
 
   * 3\) installScriptDependencies\(\) call
 
-\*\* script/lib/verify-machine-requirements.js
+  * 4\) installApm\(\) call
 
-\*\* node, npm, python 버전을 check 한다.
+  * 5\) runApmInstall\(\) call
 
-\* 2\) cleanDependencies\(\) call
 
-\*\* script/lib/clean-dependencies.js
 
-\*\* 이전에 build한 파일을 remove한다.
+##### 1\) verifyMachineRequirements\(\) call
 
-\*\* fs.removeSync
+* 코드
+  * `script/lib/verify-machine-requirements.js`
 
-\* 3\) installScriptDependencies\(\) call
+* 하는일
+  * node, npm, python 버전을 check 한다.
 
-\*\* script/lib/install-script-dependencies.js
 
-\*\* npm install 을 "~/atom/sciprt/" 위치에서 수행한다.
 
-\*\* atom/script 폴더에 정의된 package.json을 이용해서 node\_module을 설치 ==&gt; build script용 node\_module설치로 보면 된다.
+##### 2\) cleanDependencies\(\) call
 
-\* 4\) installApm\(\) call
+* 코드
+  * `script/lib/clean-dependencies.js`
 
-\*\* script/lib/install-apm.js
+* 하는일
+  * 이전에 build한 파일을 remove한다.
+  * fs.removeSync 함수를 사용해서 remove하고 있다.
 
-\*\* npm install 을 "~/atom/apm/" 위치에서 수행한다.
 
-\*\* apm 모듈을 설치하는 것으로 보면 된다.
 
-\*\* 설치 이후 "apm" 명령 수행이 가능해 진다.
+##### 3\) installScriptDependencies\(\) call
 
-\* 5\) runApmInstall\(\) call
+* 코드
+  * `script/lib/install-script-dependencies.js`
 
-\*\* script/lib/run-apm-install.js
+* 하는일
+  * npm install 을 `~/atom/script/` 위치에서 수행한다.
+  * `~/atom/script` 폴더에 정의된 `package.json`을 이용해서 node\_module을 설치 한다.
+    * build script용 node\_module설치로 보면 된다.
+
+
+
+##### 4\) installApm\(\) call
+
+* 코드
+  * `script/lib/install-apm.js`
+
+* 하는일
+  * npm install 을 `~/atom/apm/` 위치에서 수행한다.
+  * apm 모듈을 설치하는 것으로 보면 된다.
+    * 설치 이후 `apm` 명령 수행이 가능해 진다.
+    * `~/atom/apm/node_modules/atom-package-manager/bin/apm` 이 사용가능하다.
+
+
+
+##### 5\) runApmInstall\(\) call
+
+* 코드
+  * `script/lib/run-apm-install.js`
 
 \*\* apm install 명령어를 "~/atom" 위치에서 수행한다.
 
