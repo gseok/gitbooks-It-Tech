@@ -131,7 +131,7 @@ atom은 electron기반으로 동작하는데,  electron의 major, minor 버전�
 static한 resource을 빌드 output 위치로 복사하는 동작을 한다.
 
 * 코드
-  * script/lib/copy-assets.js
+  * `script/lib/copy-assets.js`
 * 하는일
   * fs.copySync 로 파일을 복사한다.
   * 기본적으로 복사해야 하는 폴더가 위 코드에 하드코딩되어 있다.
@@ -143,47 +143,39 @@ static한 resource을 빌드 output 위치로 복사하는 동작을 한다.
 
 #### transpilePackagesWithCustomTranspilerPaths\(\)
 
-\* script/lib/transpile-packages-with-custom-transpiler-paths.js
+package중 custom transpiler을 지정한 package의 경우 해당 traanspiler로 소스를 `transpile` 하는 동작을 한다.
 
-&gt;&gt; 함수\(transpilePackagesWithCustomTranspilerPaths\) call시 step
+* 코드
+  * `script/lib/transpile-packages-with-custom-transpiler-paths.js`
+* 하는일
+  * 1\) atom root에 있는 `package.json`을 읽어온다. \(`~/atom/package.json`\)
+  * 2\) `package.json`의 내용중 `packageDependencies` 에 정의된 모듈 list을 가져온다.
+  * 3\) `packageDependencies`에 정의된 모듈의 `package.json`을 가져온다.
+    * e.g\) `~/atom/package.json`의 `packageDependencies`정의에 welcome 이라는 모듈이정의되어 있다면
+    * `~/atom/node_modules/welcome/package.json`을 읽어온다.
+  * 4\) 모듈의 `package.json`에서 **`atomTranspilers`** 이 정의되어 있는지 판단한다.
+    * e.g\) `~/atom/node_modules/welcome/package.json`에 **`atomTranspilers`**가 정의되어 있는지 판다.
+  * 5\) **`atomTranspileres`**가 정의되어 있으면, **`CompileCache.addPathToCache()`** 함수를 이용해서 `transpile`을 수행한다.
+    * e.g\) [https://github.com/atom/github/blob/master/package.json](https://github.com/atom/github/blob/master/package.json)
+  * 6\) **`CompileCache.addPathToCache()`** 함수는 `transpile`된 소스 코드를 리턴한다.
+  * 7\) 리턴된 소스코드를 `fs.writeFileSync` 함수로 원본 코드를 다시 `rewrite` 한다.
 
-\* atom root에 있는 package.json에 packageDependencies 에 정의된 모듈만 확인
+결론적으로, build시점에 transpile 과정이 일어나고, 각각의 node\_module의 소스는 transpile된 결과로 소스가 저장된다.
 
-\* packageDependencies에 정의된 모듈의 package.json을 다시 확인
 
-\* packageDependencies에 정의된 모듈의 package.json의 내용중 atomTranspilers 가 정의된 파일에 대해서만 동작
 
-\*\* e.g.\) [https://github.com/atom/github/blob/master/package.json](https://github.com/atom/github/blob/master/package.json)
+##### CompileCache.addPathToCache\(\) call
 
-\* packageDependencies에 정의된 모듈의 package.json의 내용중 atomTranspilers 가 정의된 파일을 이용해서 transpiler 해야 하는 path\(source\)을 모
+* 코드
+  * `script/lib/compile-cache.js`
 
-두 array에 저장
-
-\* 이후 CompileCache.addPathToCache\(\) 함수 호출
-
-\* CompileCache.addPathToCache\(\) 함수는 transpile된 소스 코드를 리턴
-
-\* 리턴된 코드를 기존 file에 fs.writeFileSync을 통해 rewrite!
-
-\* 즉 build시 out/app/node\_module/&lt;&lt;package dependency 모듈중 atomTranspilers을 정의한 모듈&gt;&gt;/lib/ 소스코드는,
-
-transpile된 코드로 변경되어서 저장됨
-
-&gt;&gt;&gt;&gt; 함수\(CompileCache.addPathToCache\) call시 step
-
-\* script/lib/compile-cache.js
-
-\* 실제 주어진 file을 compile함
-
-\* 매번 compile하면 느리기 때문에 cache로 저장하여서, 이미 저장된 cache가 있으면 해당 코드를 리턴하게 되어 있음
-
-\*\* 따라서, cache을 날려야, 만약 해당 코드를 수정했을때 재컴파일된 내용으로 적용된다.
-
-\*\* out은 지우지만 컴파일 캐쉬는, "C:\Users\사용자.atom\compile-cache" 에 저장함.
-
-\* 여기서 말하는 compile은, ts, coffee, js 파일에 대해서만 되고.
-
-\* 해당 파일을 babel로 es6문법으로 변경한다.
+* 하는일
+  * 실제 주어진 file을 compile한다.\(`transpile`한다\)
+  * 매번 compile하면 느리기 때문에 `cache`로 저장하여서, 이미 저장된 `cache`가 있으면 해당 코드를 리턴하게 되어 있다.
+    * 따라서, cache을 날려야, 만약 해당 코드를 수정했을때 재컴파일된 내용으로 적용된다.
+    * compile 캐쉬는, `C:\Users\사용자\.atom\compile-cache` 에 저장함. \(window의 경우\)
+  * 여기서 말하는 compile은, `typescript, coffee, javascript` 파일에 대해서만 동작한다.
+  * 해당 파일을 `babel`로 `es6`문법으로 변경한다.
 
 ---
 
