@@ -228,121 +228,117 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 
 ---
 
-&gt; transpilePegJsPaths\(\)
+#### transpilePegJsPaths\(\)
 
-\* script/lib/transpile-peg-js-paths.js
+* 코드
+  * `script/lib/transpile-peg-js-paths.js`
+* 하는일
+  * 동일패턴 \(Transpiling PEG.js paths in `~\atom\out\app`\)
+  * 여기서는 CompileCache.addPathToCache 가 없음
 
-\* 동일패턴 \(Transpiling PEG.js paths in "~\atom\out\app"\)
+  * `PEG.js`로 `.pegjs`파일 빌드하고, 이를 `.js`파일로 만듬, 만들어지는 `.js`파일은 `PEG.js parser`코드가 됨
 
-\* PEG.js ==&gt; [https://pegjs.org/](https://pegjs.org/)
+문법 체크 가능한 코드 생성하는게 목적인 것으로 보입니다.
 
-\*\* javascript로 특정 문법에 대한 parser을 만들어준다. ==&gt; 문법을 정의하고, 정의한 문법에 맞는지 확인 가능하다.
+##### PEG.js
 
-\*\* [https://pegjs.org/online](https://pegjs.org/online)
-
-\* 여기서는 CompileCache.addPathToCache 가 없음
-
-\* PEG.js로 ".pegjs"파일 빌드하고, 이를 ".js"파일로 만듬, 만들어지는 ".js"파일은 PEG.js parser코드가 됨
-
-\*\* 즉 문법 체크 가능한 코드 만들어서 이른 .js로 저장
-
----
-
-&gt; generateModuleCache\(\)
-
-\* script/lib/generate-module-cache.js
-
-\* Generating module cache for "~\atom\out\app"
-
-\* atom root에 정의된 package.json에서, packageDependencise list을 가져와서, packageName을 하나씩 얻어옴
-
-\*\* 각각 하나씩 ModuleCache.create\(\)을 호출
-
-\*\* e.g\) "~\atom\out\app\node\_modules\atom-dark-syntax"
-
-\* "~\atom\out\app" 위치에도 package.json생성.
-
-\* \(package.json\)에 "\_atomModuleCache" 의 하위 "folders" 로 path정보를 붙임
-
-\*\* '', exprots, spec, src, src/main-process, static, vendor \(고정\)
-
-\* 만들어진 새로운 package.json을 build과정에서 사용중인 CONFIG 객체에 설정하고, 이를 다시 package.json으로 write
-
-\*\* "~\atom\out\app" 위치
-
-&gt;&gt;&gt;&gt; 함수\(ModuleCache.create\) call시 step
-
-\* 해당 모듈의, package.json파일을 읽어옴. \("~\atom\out\app\node\_modules\atom-dark-syntax\package.json"\)
-
-\* 해당 모듈의, package.json파일에 \_atomModuleCache 라는 key에 version, dependency, extensions, folders 정보를 추가
-
-\* 이후 다시 package.json을 write \("~\atom\out\app\node\_modules\atom-dark-syntax\package.json"\)
+* [https://pegjs.org/](https://pegjs.org/)
+* javascript로 특정 문법에 대한 parser을 만들어준다. 즉 문법을 정의하고, 정의한 문법에 맞는지 확인 가능하다.
+* 직접 보는게 이해가 빠르다. [https://pegjs.org/online](https://pegjs.org/online) 에 접속해서 구경하라.
 
 ---
 
-&gt; prebuildLessCache\(\)
+#### generateModuleCache\(\)
 
-\* script/lib/prebuild-less-cache.js
+* 코드
+  * `script/lib/generate-module-cache.js`
+* 하는일
+  * Generating module cache for `~\atom\out\app`
+  * atom root에 정의된 `package.json`에서, `packageDependencise` list을 가져와서, `packageName`을 하나씩 얻어옴
+  * 각각 하나씩 `ModuleCache.create()`을 호출, `packageName`을 param으로 던짐
+    * e.g\) `~\atom\out\app\node_modules\atom-dark-syntax`
+  * `~/atom/out/app` 위치에 `package.json`생성.
+  * `package.json`에 `_atomModuleCache` 의 하위 `folders` 로 path정보를 붙임
+    * `exprots, spec, src, src/main-process, static, vendor` \(고정\)
+  * 만들어진 새로운 `package.json`을 build과정에서 사용중인 `CONFIG` 객체에 설정하고, 이를 다시 `package.json`으로 write
+    * `~\atom\out\app` 위치
 
-\* less to css
 
-\* "~\atom\out\app\less-compile-cache"에cache함
 
----
+##### ModuleCache.create\(\) call
 
-&gt; generateMetadata\(\)
-
-\* script/lib/generate-metadata.js
-
-\* "~\atom\out\app\package.json" 파일 생성 \(기존에 있는거 덮어 쓰고 재생성\)
-
-\* package. menu, keymaps, deprecatedpackage을 추가해서 재생성하고, file write
-
----
-
-&gt; generateAPIDocs\(\)
-
-\* Generating API docs at "~\atom\docs\output\atom-api.json" 으로 api doc 생성
-
-\* "~/atom/." 위치의 모든 coffee script와 "~/atom/src/\*\*/\*.js"위치의 모든 js파일을 이용해서 api doc을 생성한다.
-
-\* require\('donna'\), require\('tello'\), require\('joanna'\) 3개의 lib을 사용해서 api doc 생성
-
-\*\* 참고: [https://www.npmjs.com/package/tello](https://www.npmjs.com/package/tello)
-
-\* atom doc을 만드는 lib
+* 코드
+  * ~/atom/src/module-cache.coffee
+* 하는일
+  * 해당 모듈의\(이함수의 param으로 받은 `packageName`\), \`package.json파일을 읽어옴. 
+    * e.g\) `~\atom\out\app\node_modules\atom-dark-syntax\package.json`
+  * 해당 모듈의, `package.json`파일에 `_atomModuleCache` 라는 key에 `version, dependency, extensions, folders` 정보를 추가
+  * 이후 다시 `package.json`을 write
+    * e.g\) `~\atom\out\app\node_modules\atom-dark-syntax\package.json`
 
 ---
 
-&gt; dumpSymbols\(\)
+#### prebuildLessCache\(\)
 
-\* script/lib/dump-symbols.js
-
-\* Skipping symbol dumping because minidump is not supported on Windows \(윈도우의 경우 skip\)
-
-\* minidump라는 lib을 이용해서 dump작업을 한다.
-
-\*\*"~/atom/out/app/node\_modules/\*\*/\*.node", 즉 "\*.node"파일을 Listup 하고 해당 list파일을 하나씩 dump
-
-\* 참고: [https://www.npmjs.com/package/minidump](https://www.npmjs.com/package/minidump)
-
-\* promise을 리턴
+* 코드
+  * `script/lib/prebuild-less-cache.js`
+* 하는일
+  * less to css
+  * `~\atom\out\app\less-compile-cache`에cache함
 
 ---
 
-&gt; packageApplication\(\)
+#### generateMetadata\(\)
 
-\* script/lib/package-application.js
+* 코드
+  * `script/lib/generate-metadata.js`
+* 하는일
+  * `~\atom\out\app\package.json` 파일 생성 \(**`기존에 있는거 덮어 쓰고 재생성`**\)
+  * `package. menu, keymaps, deprecatedpackage`을 추가해서 재생성하고, file write
 
-\* electron package 작업을 하는 부분
+---
 
-\* Running electron-packager on "~\atom\out\app" with app name "atom"
+#### generateAPIDocs\(\)
 
-\* 내부적으로 runPackage\(option\)을 호출
+* 코드
+  * `script/lib/generate-api-docs.js`
+* 하는일
+  * Generating API docs at `~\atom\docs\output\atom-api.json` 으로 `api doc` 생성
+  * `~/atom/.` 위치의 모든 coffee script와 `~/atom/src/**/*.js`위치의 모든 js파일을 이용해서 `api doc`을 생성한다.
+  * **`require('donna'), require('tello'), require('joanna')`** 3개의 lib을 사용해서 api doc 생성
+    * 참고: [https://www.npmjs.com/package/tello](https://www.npmjs.com/package/tello)
+    * atom doc을 만드는 lib
 
-\*\* option에는, version, arch, name, outputdir, copyright등을 설정하게 되어 있음
+---
 
-&gt;&gt;&gt;&gt; 함수\(runPackage\(option\)\) call시 step
+#### dumpSymbols\(\)
+
+* 코드
+  * `script/lib/dump-symbols.js`
+* 하는일
+  * `minidump`라는 lib을 이용해서 `dump`작업을 한다.
+  *  Skipping symbol dumping because minidump is not supported on Windows \(윈도우의 경우 skip\)
+  * `~/atom/out/app/node_modules/**/*.node`, 즉 `*.node`파일을 Listup 하고 해당 list파일을 하나씩 dump
+
+##### minidump
+
+* 참고: [https://www.npmjs.com/package/minidump](https://www.npmjs.com/package/minidump)
+
+---
+
+#### packageApplication\(\)
+
+* 코드
+  * `script/lib/package-application.js`
+* 하는일
+  * `electron package` 작업을 하는 부분
+  * Running electron-packager on `~\atom\out\app`with app name `atom`
+  * 내부적으로 `runPackage(option)`을 호출
+    * option에는, `version, arch, name, outputdir, copyright`등을 설정하게 되어 있음
+
+
+
+##### runPackage\(option\) call
 
 \* electronPackager\(\) 함수 호출
 
