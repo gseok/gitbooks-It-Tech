@@ -72,9 +72,11 @@ build 코드에서 가장 먼저 호출하는 함수이다.
 ##### 5\) runApmInstall\(\) call
 
 * 코드
+
   * `script/lib/run-apm-install.js`
 
 * 하는일
+
   * `apm install` 명령어를 `~/atom` 위치에서 수행한다.
   * `atom` 폴더에 정의된 `package.json`을 이용해서 `node_module`을 설치한다.
     * 실제 atom package들과 atom에서 필요로 하는 package가 설치된다.
@@ -93,7 +95,7 @@ build 코드에서 가장 먼저 호출하는 함수이다.
            실제 node의 request을 이용해서 파일을 가져오고 있음을 볼 수 있다.
     ```
 
-*  결론적으로, `apm install` 이 수행되고 나면 **atom에서 필요로하는 모듈을 build전에 다 local로 가져오게 된다**.
+* 결론적으로, `apm install` 이 수행되고 나면 **atom에서 필요로하는 모듈을 build전에 다 local로 가져오게 된다**.
 
 여기까지 진행하면 build을 위한 사전작업\(bootstrap\)이 완료
 
@@ -116,11 +118,26 @@ atom은 electron기반으로 동작하는데,  electron의 major, minor 버전�
 
 빌드 과정이기 때문에 본격적인 build가 되기전에 이전 build 결과를 제거하는 동작을 한다.
 
-
+* 코드
+  * `script/lib/clean-output-directory.js`
+* 하는일
+  * `fs.removeSync`을 이용해서 이전 build output directory을 제거한다.
+  * build output directory는 `~/atom/script/config.js` 에 정의되어 있는 `buildOutputPath`을 기준으로 한다.
 
 ---
 
-&gt; copyAssets\(\)
+#### copyAssets\(\)
+
+static한 resource을 빌드 output 위치로 복사하는 동작을 한다.
+
+* 코드
+  * script/lib/copy-assets.js
+* 하는일
+  * fs.copySync 로 파일을 복사한다.
+  * 기본적으로 복사해야 하는 폴더가 위 코드에 하드코딩되어 있다.
+    * benchmarks, dot-atom, exports, node\_modules, package.json, static, src, vendor
+    * app-icons, atom.png
+  * 해당 리소스들이 복사되어지는 destination위치는 `~/atom/out/Atom x64/resources/app` 이다.
 
 ---
 
