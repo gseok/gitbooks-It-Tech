@@ -188,7 +188,7 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
   * 즉 `out/app/**` 에 존재하는 `javascript`파일을 모두 array에 path값을 넣어서 저장하고 이를 babel로 `transpile`한다.
   * `transpile` 해야하는 list을 `CompileCache.addPathToCache()`을 호출하여서 `transpile`을 수행한다.
 
-결론적으로, atom package node\_module뿐 아니라 atom
+결론적으로, atom package node\_module뿐 아니라 atom source에서 build시 포함되어지는 모든 소스에 대해서, transpile이 한번 수행된다. 위의 custom transpile와 다른점은, atom에서 지정하고 있는 default transpiler을 수행한다는 점이다. default transpiler는 babel이고 es6로 transpile을 한다.
 
 ##### CompileCache.addPathToCache\(\) call
 
@@ -202,33 +202,29 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
   * `script/lib/transpile-coffee-script-paths.js`
 * 하는일
   * Transpiling CoffeeScript paths in `~\atom\out\app`
-  * getPathsToTranspile\(\) 을 호출해서 `~\atom\out\app`에 있는  ".conffee"파일 list을 가져온다.
+  * `getPathsToTranspile()` 을 호출해서 `~\atom\out\app`에 있는  `.conffee`파일 list을 가져온다.
+  * `CompileCache.addPathToCache()`을 호출한다.
 
-\* CompileCache.addPathToCache\(\)을 호출한다.
+##### CompileCache.addPathToCache\(\) call
 
-&gt;&gt;&gt;&gt; 함수\(CompileCache.addPathToCache\) call시 step
-
-\* 위의 transpilePackagesWithCustomTranspilerPaths에서의 함수\(CompileCache.addPathToCache\) call시 step과 동일함
-
-\* 단 coffee의 경우 coffee script compile과정을 거치게 된다.
+* compileCache.addPathToCache\(\) 처음 설명과 동일
+* 단 coffee의 경우 coffee script compile과정을 거치게 된다.
 
 ---
 
-&gt; transpileCsonPaths\(\)
+#### transpileCsonPaths\(\)
 
-\* script/lib/transpile-cson-paths.js
+* 코드
+  * `script/lib/transpile-cson-paths.js`
+* 하는일
+  * 동일패턴 \(Transpiling CSON paths in `~\atom\out\app`\)
+  * `getPathsToTranspile()`을 호출해서 `~\atom\out\app`에 있는 `.cson`파일 list을 가져온다.
+  * `CompileCache.addPathToCache()`을 호출한다.
 
-\* 동일패턴 \(Transpiling CSON paths in "~\atom\out\app"\)
+##### CompileCache.addPathToCache\(\) call
 
-\* getPathsToTranspile\(\)을 호출해서 "~\atom\out\app"에 있는 ".cson"파일 list을 가져온다.
-
-\* CompileCache.addPathToCache\(\)을 호출한다.
-
-&gt;&gt;&gt;&gt; 함수\(CompileCache.addPathToCache\) call시 step
-
-\* 위의 transpilePackagesWithCustomTranspilerPaths에서의 함수\(CompileCache.addPathToCache\) call시 step과 동일함
-
-\* 단 cson의 경우 cson to json 과정을 거치게 된다.
+* compileCache.addPathToCache\(\) 처음 설명과 동일
+* 단 `cson`의 경우 `cson to json` 과정을 거치게 된다.
 
 ---
 
