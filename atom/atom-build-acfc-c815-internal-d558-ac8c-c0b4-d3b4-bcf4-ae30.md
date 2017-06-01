@@ -153,23 +153,23 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
   * 3\) `packageDependencies`에 정의된 모듈의 `package.json`을 가져온다.
     * e.g\) `~/atom/package.json`의 `packageDependencies`정의에 welcome 이라는 모듈이정의되어 있다면
     * `~/atom/node_modules/welcome/package.json`을 읽어온다.
-  * 4\) 모듈의 `package.json`에서 **`atomTranspilers`** 이 정의되어 있는지 판단한다.
-    * e.g\) `~/atom/node_modules/welcome/package.json`에 **`atomTranspilers`**가 정의되어 있는지 판다.
-  * 5\) **`atomTranspileres`**가 정의되어 있으면, **`CompileCache.addPathToCache()`** 함수를 이용해서 `transpile`을 수행한다.
+  * 4\) 모듈의 `package.json`에서 `atomTranspilers` 이 정의되어 있는지 판단한다.
+    * e.g\) `~/atom/node_modules/welcome/package.json`에 `atomTranspilers`가 정의되어 있는지 판다.
+  * 5\) `atomTranspileres`가 정의되어 있으면, `CompileCache.addPathToCache()` 함수를 이용해서 `transpile`을 수행한다.
     * e.g\) [https://github.com/atom/github/blob/master/package.json](https://github.com/atom/github/blob/master/package.json)
-  * 6\) **`CompileCache.addPathToCache()`** 함수는 `transpile`된 소스 코드를 리턴한다.
+  * 6\) `CompileCache.addPathToCache()` 함수는 `transpile`된 소스 코드를 리턴한다.
   * 7\) 리턴된 소스코드를 `fs.writeFileSync` 함수로 원본 코드를 다시 `rewrite` 한다.
 
 결론적으로, build시점에 transpile 과정이 일어나고, 각각의 node\_module의 소스는 transpile된 결과로 소스가 저장된다.
 
-
-
 ##### CompileCache.addPathToCache\(\) call
 
 * 코드
+
   * `script/lib/compile-cache.js`
 
 * 하는일
+
   * 실제 주어진 file을 compile한다.\(`transpile`한다\)
   * 매번 compile하면 느리기 때문에 `cache`로 저장하여서, 이미 저장된 `cache`가 있으면 해당 코드를 리턴하게 되어 있다.
     * 따라서, cache을 날려야, 만약 해당 코드를 수정했을때 재컴파일된 내용으로 적용된다.
@@ -179,19 +179,20 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 
 ---
 
-&gt; transpileBabelPaths\(\)
+#### transpileBabelPaths\(\)
 
-\* script/lib/transpile-babel-paths.js
+* 코드
+  * `script/lib/transpile-babel-paths.js`
+* 하는일
+  * Transpiling Babel paths in `~\out\app`
+  * 즉 `out/app/**` 에 존재하는 `javascript`파일을 모두 array에 path값을 넣어서 저장하고 이를 babel로 `transpile`한다.
+  * `transpile` 해야하는 list을 **`CompileCache.addPathToCache()`**을 호출하여서 `transpile`을 수행한다.
 
-\* Transpiling Babel paths in ~\out\app
+결론적으로, atom package node\_module뿐 아니라 atom
 
-\* 즉 out/app/\*\* 에 존재하는 js파일을 모두 array에 path값을 넣어서 저장하고 이를 babel로 transpile한다.
+##### CompileCache.addPathToCache\(\) call
 
-\* CompileCache.addPathToCache\(\) 함수 호출을 해서 리턴된 코드를 기존 file에 fs.writeFileSync을 통해 rewrite!
-
-&gt;&gt;&gt;&gt; 함수\(CompileCache.addPathToCache\) call시 step
-
-\* 위의 transpilePackagesWithCustomTranspilerPaths에서의 함수\(CompileCache.addPathToCache\) call시 step과 동일함
+* compileCache.addPathToCache\(\) 처음 설명과 동일
 
 ---
 
