@@ -379,12 +379,10 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 * 하는일
   * `~\atom\out\startup.js` 을 만듬.
     * coreModules: new Set\(\['electron', 'atom', 'shell', 'WNdb', 'lapack', 'remote'\]\)
-  * **`electron-link`** 모듈 사용해서 함수 콜
+  * `electron-link` 모듈 사용해서 함수 콜
     * 참고: [https://github.com/atom/electron-link](https://github.com/atom/electron-link)
   * 생성한 snapshot 파일 move
     * `~\atom\out\snapshot_blob.bin 파일을`  `~\atom\out\Atom x64\snapshot_blob.bin` 이동
-
-
 
 ##### electron-link\(\) call
 
@@ -392,10 +390,8 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
   * [https://github.com/atom/electron-link](https://github.com/atom/electron-link)
   * [https://www.npmjs.com/package/electron-link](https://www.npmjs.com/package/electron-link)
 * 하는일
-  * _시작점부터 필요한 모든 `module`\(require한거\)을 모아서 취합_하는 것으로 보임
+  * _시작점부터 필요한 모든 _`module`_\(require한거\)을 모아서 취합_하는 것으로 보임
   * `snapshot_blob.bin` 파일을 생성하고, mksnapshot을 이용해서 검증\(verifying\)\(childProcess.execFileSync이용해서\)까지 함
-
-
 
 ---
 
@@ -419,8 +415,6 @@ build 옵션에서, installer생성하는 옵션을 준 경우 이 코드에서 
 * 인스톨러 생성시 패키징 되어야 하는 `atom`\(소스\) 위치
   * `~/atom/out/Atom x64` 이 됨
 
-
-
 ###### createWindowsInstaller \(윈도우의 경우\) call
 
 * 코드
@@ -437,8 +431,6 @@ build 옵션에서, installer생성하는 옵션을 준 경우 이 코드에서 
 * setup.exe파일을 만들었다고 가정하면, 해당 파일의 아이콘, 해당파을 실행햇을때 progress시 화면 등을 여기서 다 설정 가능
 * 참고: https://github.com/electron/windows-installer 를 살펴보면, 인스톨러 생성용 옵션들이 존재함.
 ```
-
-
 
 ##### 2\) codeSign옵션에 따라 codeSign과정 수행
 
@@ -459,27 +451,26 @@ build 옵션에서, installer생성하는 옵션을 준 경우 이 코드에서 
 
 
 
-compressArtifacts\(\) call
+##### compressArtifacts\(\) call
 
-\* script/lib/compress-artifacts.js
-
-\* win, linux, mac에 따라서 소스를 압축하는 동작을 함
-
-\*\* 'atom-mac.zip', \`atom-windows.zip\`, \`atom-${getLinuxArchiveArch\(\)}.tar.gz\`
-
-\* 압축시 사용하는 util도 다름 \(압축시 node의 spawnSync사용\)
-
-\*\* zip, 7z.exe, tar
-
-\*\* 따라서 window의 경우 7z.exe가 환경변수 설정되어 있어서 바로 실행 가능해야함.
+* 코드
+  * `script/lib/compress-artifacts.js`
+* 하는일
+  * win, linux, mac에 따라서 **소스를 압축**하는 동작을 함
+    * 'atom-mac.zip', \`atom-windows.zip\`, \`atom-${getLinuxArchiveArch\(\)}.tar.gz\`
+  * 압축시 사용하는 util도 다름 \(압축시 node의 spawnSync사용\)
+    * zip\(linux\), 7z.exe\(window\), tar\(mac\)
+    * 따라서 window의 경우 `7z.exe`가 환경변수 설정되어 있어서 바로 실행 가능해야함.
 
 
 
-&gt;&gt;&gt;&gt; 함수 installApplication\(\) call시 step
+##### installApplication\(\) call
 
-\* script/lib/install-application
+* 코드
+  * `script/lib/install-application.js`
+*  하는일
+  * build의 결과는 default로 `out/Atom x64` 위치에 저장됨. **이걸 install 위치에 copy해서 install하는 형태**임
+  * 이미 설치되어 있으면 지우고 설치함
 
-\* build의 결과는 default로 "out/Atom x64" 위치에 저장됨. 이걸 install 위치에 copy해서 install하는 형태임
 
-\* 이미 설치되어 있으면 지우고 설치함
 
