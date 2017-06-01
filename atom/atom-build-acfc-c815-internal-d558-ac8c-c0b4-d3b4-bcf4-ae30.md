@@ -186,7 +186,7 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 * 하는일
   * Transpiling Babel paths in `~\out\app`
   * 즉 `out/app/**` 에 존재하는 `javascript`파일을 모두 array에 path값을 넣어서 저장하고 이를 babel로 `transpile`한다.
-  * `transpile` 해야하는 list을 **`CompileCache.addPathToCache()`**을 호출하여서 `transpile`을 수행한다.
+  * `transpile` 해야하는 list을 `CompileCache.addPathToCache()`을 호출하여서 `transpile`을 수행한다.
 
 결론적으로, atom package node\_module뿐 아니라 atom
 
@@ -196,13 +196,13 @@ package중 custom transpiler을 지정한 package의 경우 해당 traanspiler�
 
 ---
 
-&gt; transpileCoffeeScriptPaths\(\)
+#### transpileCoffeeScriptPaths\(\)
 
-\* script/lib/transpile-coffee-script-paths.js
-
-\* Transpiling CoffeeScript paths in ~\atom\out\app
-
-\* getPathsToTranspile\(\)을 호출해서 "~\atom\out\app"에 있는  ".conffee"파일 list을 가져온다.
+* 코드
+  * `script/lib/transpile-coffee-script-paths.js`
+* 하는일
+  * Transpiling CoffeeScript paths in `~\atom\out\app`
+  * getPathsToTranspile\(\) 을 호출해서 `~\atom\out\app`에 있는  ".conffee"파일 list을 가져온다.
 
 \* CompileCache.addPathToCache\(\)을 호출한다.
 
